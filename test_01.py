@@ -16,11 +16,12 @@ def event_loop(request):
     loop.close()
 
 
-
 @pytest.fixture(scope="session")
 async def client() -> Client:
     # noinspection PyCallingNonCallable
-    client = Client("my_account", settings.API_ID, settings.API_HASH)
+    client = Client(
+        "my_account", settings.TG_APP_API_ID, settings.TG_APP_API_HASH
+    )
     await client.start()
     yield client
     await client.stop()
@@ -48,4 +49,3 @@ async def test_start(controller, client):
 
 async def test_ping(controller, client):
     assert await controller.ping_bot()
-
