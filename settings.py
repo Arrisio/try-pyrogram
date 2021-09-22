@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     TG_BOT_TOKEN: str
     TG_BOT_ADMIN_ID: int
 
+    BOT_UNDER_TEST: str
+
     class Config:
         env_file: str = ".env"
         env_file_encoding = "utf-8"
