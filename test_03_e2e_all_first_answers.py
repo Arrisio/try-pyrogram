@@ -47,7 +47,6 @@ async def test_scenario01(controller, client):
     )
 
 
-
 async def step01_start(controller, client):
     expected_msgs_number = 4
     msgs1_keywords = ["Привет", "марафон"]
@@ -62,9 +61,9 @@ async def step01_start(controller, client):
     assert res.messages[0].photo
     assert 400 <= res.messages[0].photo.width <= 800
 
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
-    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=2)
-    verify_keywords_in_msg(res.messages, msgs3_keywords, msg_idx=3)
+    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=[1, 2])
+    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=[1, 2, 3])
+    verify_keywords_in_msg(res.messages, msgs3_keywords, msg_idx=[2, 3])
 
     kb = res.inline_keyboards[0]
     assert kb.num_buttons == 2
@@ -132,7 +131,7 @@ async def step04_my_first_start(controller, client, clicking_kb):
         clicking_kb, expected_msgs_number, clicking_button_idx, controller
     )
 
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
+    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=[1, 2])
     verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=[2, 3])
     verify_keywords_in_msg(res.messages, msgs4_keywords, msg_idx=4)
 
@@ -149,7 +148,7 @@ async def step05_if_agree(controller, client, clicking_kb):
     clicking_button_idx = 0  # кнопка 1
 
     expected_msgs_number = 6
-    msgs1_keywords = ['начнем']
+    msgs1_keywords = ["начнем"]
     msgs2_keywords = ["соревнования", "справляться"]
     msgs3_keywords = ["https"]
     msgs4_keywords = ["коротко"]
@@ -160,10 +159,10 @@ async def step05_if_agree(controller, client, clicking_kb):
     )
 
     verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
-    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=[2,3])
-    verify_keywords_in_msg(res.messages, msgs3_keywords, msg_idx=[2,3])
-    verify_keywords_in_msg(res.messages, msgs4_keywords, msg_idx=[4,5])
-    verify_keywords_in_msg(res.messages, msgs5_keywords, msg_idx=[4,5])
+    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=[2, 3])
+    verify_keywords_in_msg(res.messages, msgs3_keywords, msg_idx=[2, 3])
+    verify_keywords_in_msg(res.messages, msgs4_keywords, msg_idx=[4, 5])
+    verify_keywords_in_msg(res.messages, msgs5_keywords, msg_idx=[4, 5])
 
     verify_clicked_button_was_marked(
         prev_kb=clicking_kb,
@@ -178,7 +177,7 @@ async def step06_i_want_to_know_about_stress(controller, client, clicking_kb):
     clicking_button_idx = 0  # кнопка 1
 
     expected_msgs_number = 5
-    msgs1_keywords = ['Отлично']
+    msgs1_keywords = ["Отлично"]
     msgs2_keywords = ["https"]
     msgs3_keywords = ["Важный", "шаг"]
     msgs4_keywords = ["Почему", "занимаетесь"]
@@ -197,6 +196,7 @@ async def step06_i_want_to_know_about_stress(controller, client, clicking_kb):
         new_kb=res.inline_keyboards[0],
         clicked_button_idx=clicking_button_idx,
     )
+    verify_numeric_kb_is_valid(res.inline_keyboards[-1], num_buttons=6)
 
     return res
 
@@ -205,7 +205,7 @@ async def step07_about_stress_why_run(controller, client, clicking_kb):
     clicking_button_idx = 0  # кнопка 1
 
     expected_msgs_number = 2
-    msgs1_keywords = ['Какая', "цель"]
+    msgs1_keywords = ["Какая", "цель"]
 
     # res = await click(
     #     clicking_kb, expected_msgs_number, clicking_button_idx, controller
@@ -213,7 +213,7 @@ async def step07_about_stress_why_run(controller, client, clicking_kb):
 
     # async with controller.collect(count=1) as res:
     await asyncio.sleep(1)
-    res =    await clicking_kb.click(pattern=r'1')
+    res = await clicking_kb.click(index=clicking_button_idx)
 
     verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
 
@@ -224,7 +224,6 @@ async def step07_about_stress_why_run(controller, client, clicking_kb):
     )
 
     return res
-
 
 
 class IncorrectPresButtonResultException(Exception):
