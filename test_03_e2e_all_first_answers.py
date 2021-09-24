@@ -26,32 +26,109 @@ async def test_start(controller, client):
 async def test_scenario01(controller, client):
     await controller.clear_chat()
 
-    res = await step01_start(controller, client)
-    res = await step02_will_tak_part(
+    res = await step00_start(controller, client)
+    res = await step01_will_tak_part(
         controller, client, clicking_kb=res.inline_keyboards[-1]
     )
-    res = await step03_run_1_mile(
+    res = await step02_run_1_mile(
         controller, client, clicking_kb=res.inline_keyboards[-1]
     )
-    res = await step04_my_first_start(
+    res = await step03_my_first_start(
         controller, client, clicking_kb=res.inline_keyboards[-1]
     )
-    res = await step05_if_agree(
+    res = await step04_about_work_format_continue(
         controller, client, clicking_kb=res.inline_keyboards[-1]
     )
-    res = await step06_i_want_to_know_about_stress(
+    res = await step05_give_agreement(
         controller, client, clicking_kb=res.inline_keyboards[-1]
     )
-    res = await step07_about_stress_why_run(
+
+async def test_scenario02(controller, client):
+    await controller.clear_chat()
+
+    res = await step00_start(controller, client)
+    res = await step01_will_tak_part(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step02_run_1_mile(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step03_my_first_start(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step04_about_work_format_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step05_give_agreement(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step06_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step07_stress_works_like_this_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step08_want_to_know_more_about_stress(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step09_finish_with_stress_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+
+async def test_scenario03(controller, client):
+    await controller.clear_chat()
+
+    res = await step00_start(controller, client)
+    res = await step01_will_tak_part(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step02_run_1_mile(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step03_my_first_start(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step04_about_work_format_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step05_give_agreement(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step06_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step07_stress_works_like_this_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step08_want_to_know_more_about_stress(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step09_finish_with_stress_continue(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step10_qiuz1(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step11_qiuz2(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step12_qiuz3(
+        controller, client, clicking_kb=res.inline_keyboards[-1]
+    )
+    res = await step13_qiuz4(
         controller, client, clicking_kb=res.inline_keyboards[-1]
     )
 
 
-async def step01_start(controller, client):
+
+
+async def step00_start(controller, client):
     expected_msgs_number = 4
-    msgs1_keywords = ["Привет", "марафон"]
-    msgs2_keywords = ["помогу", "марафон"]
-    msgs3_keywords = ["участвовать", "HONOR", "полезен"]
+    keywords = [
+        ["Привет", "марафон"],
+        ["помогу", "марафон"],
+        ["участвовать", "HONOR", "полезен"]
+    ]
 
     async with controller.collect(
         count=expected_msgs_number
@@ -61,9 +138,7 @@ async def step01_start(controller, client):
     assert res.messages[0].photo
     assert 400 <= res.messages[0].photo.width <= 800
 
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=[1, 2])
-    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=[1, 2, 3])
-    verify_keywords_in_msg(res.messages, msgs3_keywords, msg_idx=[2, 3])
+    verify_keywords_in_msg(res.messages, keywords)
 
     kb = res.inline_keyboards[0]
     assert kb.num_buttons == 2
@@ -75,19 +150,20 @@ async def step01_start(controller, client):
     return res
 
 
-async def step02_will_tak_part(controller, client, clicking_kb):
+async def step01_will_tak_part(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Вы будете участвовать в марафоне HONOR Сочи 20"""
+
     clicking_button_idx = 0  # кнопка буду участвовать
 
     expected_msgs_number = (
         2  # 1ое сообщение - изменяемая клава. 2е - само сообщение
     )
-    msgs1_keywords = ["Отлично", "дистанцию", "км"]
+    msgs_keywords = [["Отлично", "дистанцию", "км"]]
 
-    res = await click(
-        clicking_kb, expected_msgs_number, clicking_button_idx, controller
-    )
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
 
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
+    verify_keywords_in_msg(res.messages, msgs_keywords)
     verify_numeric_kb_is_valid(res.inline_keyboards[-1], num_buttons=5)
 
     verify_clicked_button_was_marked(
@@ -98,17 +174,17 @@ async def step02_will_tak_part(controller, client, clicking_kb):
     return res
 
 
-async def step03_run_1_mile(controller, client, clicking_kb):
+async def step02_run_1_mile(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Какую дистанцию вы побежите на марафоне?"""
     clicking_button_idx = 0  # кнопка 1
 
     expected_msgs_number = 2
-    msgs1_keywords = ["опыт", "спортсмен"]
+    msgs_keywords = [["опыт", "спортсмен"]]
 
-    res = await click(
-        clicking_kb, expected_msgs_number, clicking_button_idx, controller
-    )
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
 
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
+    verify_keywords_in_msg(res.messages, msgs_keywords)
     verify_numeric_kb_is_valid(res.inline_keyboards[-1], num_buttons=6)
     verify_clicked_button_was_marked(
         prev_kb=clicking_kb,
@@ -119,103 +195,19 @@ async def step03_run_1_mile(controller, client, clicking_kb):
     return res
 
 
-async def step04_my_first_start(controller, client, clicking_kb):
-    clicking_button_idx = 0  # кнопка 1
-
-    expected_msgs_number = 5
-    msgs1_keywords = []
-    msgs2_keywords = ["согласие"]
-    msgs4_keywords = ["прочли", "согласны"]
-
-    res = await click(
-        clicking_kb, expected_msgs_number, clicking_button_idx, controller
-    )
-
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=[1, 2])
-    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=[2, 3])
-    verify_keywords_in_msg(res.messages, msgs4_keywords, msg_idx=4)
-
-    verify_clicked_button_was_marked(
-        prev_kb=clicking_kb,
-        new_kb=res.inline_keyboards[0],
-        clicked_button_idx=clicking_button_idx,
-    )
-
-    return res
-
-
-async def step05_if_agree(controller, client, clicking_kb):
-    clicking_button_idx = 0  # кнопка 1
-
-    expected_msgs_number = 6
-    msgs1_keywords = ["начнем"]
-    msgs2_keywords = ["соревнования", "справляться"]
-    msgs3_keywords = ["https"]
-    msgs4_keywords = ["коротко"]
-    msgs5_keywords = ["хотите", "узнать"]
-
-    res = await click(
-        clicking_kb, expected_msgs_number, clicking_button_idx, controller
-    )
-
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
-    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=[2, 3])
-    verify_keywords_in_msg(res.messages, msgs3_keywords, msg_idx=[2, 3])
-    verify_keywords_in_msg(res.messages, msgs4_keywords, msg_idx=[4, 5])
-    verify_keywords_in_msg(res.messages, msgs5_keywords, msg_idx=[4, 5])
-
-    verify_clicked_button_was_marked(
-        prev_kb=clicking_kb,
-        new_kb=res.inline_keyboards[0],
-        clicked_button_idx=clicking_button_idx,
-    )
-
-    return res
-
-
-async def step06_i_want_to_know_about_stress(controller, client, clicking_kb):
-    clicking_button_idx = 0  # кнопка 1
-
-    expected_msgs_number = 5
-    msgs1_keywords = ["Отлично"]
-    msgs2_keywords = ["https"]
-    msgs3_keywords = ["Важный", "шаг"]
-    msgs4_keywords = ["Почему", "занимаетесь"]
-
-    res = await click(
-        clicking_kb, expected_msgs_number, clicking_button_idx, controller
-    )
-
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
-    verify_keywords_in_msg(res.messages, msgs2_keywords, msg_idx=2)
-    verify_keywords_in_msg(res.messages, msgs3_keywords, msg_idx=3)
-    verify_keywords_in_msg(res.messages, msgs4_keywords, msg_idx=4)
-
-    verify_clicked_button_was_marked(
-        prev_kb=clicking_kb,
-        new_kb=res.inline_keyboards[0],
-        clicked_button_idx=clicking_button_idx,
-    )
-    verify_numeric_kb_is_valid(res.inline_keyboards[-1], num_buttons=6)
-
-    return res
-
-
-async def step07_about_stress_why_run(controller, client, clicking_kb):
+async def step03_my_first_start(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Ваш соревновательный опыт"""
     clicking_button_idx = 0  # кнопка 1
 
     expected_msgs_number = 2
-    msgs1_keywords = ["Какая", "цель"]
+    msgs_keywords = [
+        [],
+    ]
 
-    # res = await click(
-    #     clicking_kb, expected_msgs_number, clicking_button_idx, controller
-    # )
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
 
-    # async with controller.collect(count=1) as res:
-    await asyncio.sleep(1)
-    res = await clicking_kb.click(index=clicking_button_idx)
-
-    verify_keywords_in_msg(res.messages, msgs1_keywords, msg_idx=1)
+    verify_keywords_in_msg(res.messages, msgs_keywords)
 
     verify_clicked_button_was_marked(
         prev_kb=clicking_kb,
@@ -226,60 +218,296 @@ async def step07_about_stress_why_run(controller, client, clicking_kb):
     return res
 
 
-class IncorrectPresButtonResultException(Exception):
+async def step04_about_work_format_continue(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: [текст про формат работы]"""
+
+    clicking_button_idx = 0  # кнопка 1
+
+    expected_msgs_number = 4
+    msgs_keywords = [
+        ["Прежде",'прочитайте'],
+        ["прочли", "важно", "согласны"],
+    ]
+
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+
+    verify_clicked_button_was_marked(
+        prev_kb=clicking_kb,
+        new_kb=res.inline_keyboards[0],
+        clicked_button_idx=clicking_button_idx,
+    )
+
+    return res
+
+
+async def step05_give_agreement(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Вы прочли его? Это важно"""
+
+    clicking_button_idx = 0
+
+    expected_msgs_number = 3
+    msgs_keywords = [
+        ["Отлично", "начнем"],
+        ["Старты", "стрессом"],
+    ]
+
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+    verify_clicked_button_was_marked(
+        prev_kb=clicking_kb,
+        new_kb=res.inline_keyboards[0],
+        clicked_button_idx=clicking_button_idx,
+    )
+
+
+    return res
+
+
+async def step06_continue(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Старты и соревнования часто являются стрессом дл"""
+
+    clicking_button_idx = 0
+    expected_msgs_number = 3
+    msgs_keywords = [
+        ["youtube"],
+        ["стресс"],
+    ]
+
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+    verify_clicked_button_was_marked(
+        prev_kb=clicking_kb,
+        new_kb=res.inline_keyboards[0],
+        clicked_button_idx=clicking_button_idx,
+    )
+
+    return res
+
+async def step07_stress_works_like_this_continue(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Если коротко, стресс действует так:"""
+
+    clicking_button_idx = 0
+
+    expected_msgs_number = 2
+    msgs_keywords = [
+        ["Хотите", "узнать"],
+    ]
+
+
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+    verify_clicked_button_was_marked(
+        prev_kb=clicking_kb,
+        new_kb=res.inline_keyboards[0],
+        clicked_button_idx=clicking_button_idx,
+    )
+
+    return res
+
+
+async def step08_want_to_know_more_about_stress(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Хотите больше узнать про стресс, и то, как он влияет на вас?"""
+    clicking_button_idx = 0
+
+    expected_msgs_number = 4
+    msgs_keywords = [
+        ["Отлично", "лекция"],
+        ["youtube"],
+        ["стрессом","разобрались"],
+    ]
+
+
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
+
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+    verify_clicked_button_was_marked(
+        prev_kb=clicking_kb,
+        new_kb=res.inline_keyboards[0],
+        clicked_button_idx=clicking_button_idx,
+    )
+
+    return res
+
+
+async def step09_finish_with_stress_continue(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Cо стрессом мы разобрались!"""
+    clicking_button_idx = 0
+
+    expected_msgs_number = 3
+    msgs_keywords = [
+        ["Важный", "шаг", "на пути "],
+        ["Почему", "занимаетесь"],
+    ]
+
+
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=clicking_button_idx)
+
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+    verify_clicked_button_was_marked(
+        prev_kb=clicking_kb,
+        new_kb=res.inline_keyboards[0],
+        clicked_button_idx=clicking_button_idx,
+    )
+
+    return res
+
+async def step10_qiuz1(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Почему Вы занимаетесь бегом?"""
+
+    expected_msgs_number = 2
+    msgs_keywords = [
+        ["Какая", "цель"]
+    ]
+
+
+    await click_all_buttons(kb=clicking_kb)
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=-1)
+        # await clicking_kb.click(x=0, y=1)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+
+    for button_idx in range(clicking_kb.num_buttons-1): #-1 т.к. кнопка подтвердить исчезает
+        verify_clicked_button_was_marked(
+            prev_kb=clicking_kb,
+            new_kb=res.inline_keyboards[0],
+            clicked_button_idx=button_idx,
+        )
+
+    return res
+
+
+async def step11_qiuz2(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Какая у тебя цель на ближайший забег?"""
+
+    expected_msgs_number = 2
+    msgs_keywords = [
+        ["Какие", "стресс-фактор"]
+    ]
+
+
+    await click_all_buttons(kb=clicking_kb)
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=-1)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+
+    for button_idx in range(clicking_kb.num_buttons-1):
+        verify_clicked_button_was_marked(
+            prev_kb=clicking_kb,
+            new_kb=res.inline_keyboards[0],
+            clicked_button_idx=button_idx,
+        )
+
+    return res
+
+
+async def step12_qiuz3(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Какие стресс-факторы тебя могут отвлечь от хорошего настроя на старт?"""
+
+    expected_msgs_number = 4
+    msgs_keywords = [
+        ["Ситуации", "напряжение"],
+        ["Второй","шаг","диагностике",],
+        ["Что","испытываете",],
+    ]
+
+
+    await click_all_buttons(kb=clicking_kb)
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=-1)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+
+    for button_idx in range(clicking_kb.num_buttons-1):
+        verify_clicked_button_was_marked(
+            prev_kb=clicking_kb,
+            new_kb=res.inline_keyboards[0],
+            clicked_button_idx=button_idx,
+        )
+
+    return res
+
+
+async def step13_qiuz4(controller, client, clicking_kb):
+    """Сообщ. с нажимаемой кнопкой: Что чаще всего Вы испытываете перед стартом?"""
+
+    expected_msgs_number = 5
+    msgs_keywords = [
+        ["Третий", "шаг"],
+        ["Предлагаю", "найти", "состояние"],
+        ["Вспомни", "выступление"],
+        ["Когда", "наилучшем", "состоянии"],
+    ]
+
+
+    await click_all_buttons(kb=clicking_kb)
+    async with controller.collect(count=expected_msgs_number) as res:
+        await clicking_kb.click(index=-1)
+        # await clicking_kb.click(x=0, y=1)
+
+    verify_keywords_in_msg(res.messages, msgs_keywords)
+
+    for button_idx in range(clicking_kb.num_buttons-1):
+        verify_clicked_button_was_marked(
+            prev_kb=clicking_kb,
+            new_kb=res.inline_keyboards[0],
+            clicked_button_idx=button_idx,
+        )
+
+
+    return res
+
+
+class IncorrectPresButtonResultException(AssertionError):
     pass
 
 
-async def click(kb, expected_msgs_number, clicking_button_idx, controller):
-    try:
-        async with controller.collect(count=expected_msgs_number) as res:
-            await kb.click(index=clicking_button_idx)
-
-        # надо перепроверить, но, похоже, бессмысленный assert
-        assert (
-            res.num_messages == expected_msgs_number
-        ), "Не получено ожидаемое число сообщений"
-
-    except (InvalidResponseError, TimeoutError):
-        raise IncorrectPresButtonResultException(
-            "Не получено ожидаемое число сообщений"
+async def click_all_buttons(kb):
+    for button_idx, button in enumerate(kb.rows[0]):
+        res = await kb.click(index=button_idx)
+        verify_clicked_button_was_marked(
+            prev_kb=kb,
+            new_kb=res.inline_keyboards[0],
+            clicked_button_idx=button_idx,
+            mark="✓"
         )
-
-    return res
-
-
-def verify_keywords_in_msg(
-    all_messages, keywords, msg_idx: Union[int, list[int]]
-):
-    """
-
-    :param all_messages:
-    :param keywords:
-    :param msg_idx:  может быть списком, т.к. порядок сообщений не всегда соблюдается
-    :return:
-    """
-
-    if isinstance(msg_idx, list):
-        msgs_text = " ".join(
-            all_messages[msg_idx_].text.lower()
-            for msg_idx_ in msg_idx
-            if all_messages[msg_idx_].text
-        )
-    elif isinstance(msg_idx, int):
-        msgs_text = all_messages[msg_idx].text.lower()
-    else:
-        raise TabError("msg_idx must be INT or List of INT")
-
-    for keyword in keywords:
-        assert (
-            keyword.lower() in msgs_text
-        ), f'В сообщении {msg_idx} отсутствует ключевое слово "{keyword}"'
+        kb=res.inline_keyboards[0]
 
 
-def verify_clicked_button_was_marked(new_kb, prev_kb, clicked_button_idx):
+def verify_keywords_in_msg(all_messages, keywords_in_all_messages: list):
+    for keywords_in_one_message in keywords_in_all_messages:
+        for message in all_messages:
+
+            if not message.text:
+                continue
+            for keyword in keywords_in_one_message:
+                if keyword.lower() not in message.text.lower():
+                    break
+            else:
+                break
+        else:
+            raise AssertionError(
+                f'Набор слов {keywords_in_one_message} не всречается ни в одном сообщении')
+
+
+def verify_clicked_button_was_marked(new_kb, prev_kb, clicked_button_idx, mark='✔'):
     assert (
-        new_kb.rows[0][clicked_button_idx].text
-        == "✔" + prev_kb.rows[0][clicked_button_idx].text
+        new_kb.find_button(index=clicked_button_idx).text
+        == mark + prev_kb.find_button(index=clicked_button_idx).text
     ), "Нажатая кнопка не помечена"
 
 
@@ -287,6 +515,7 @@ def verify_numeric_kb_is_valid(kb, num_buttons):
     assert kb.num_buttons == num_buttons
     assert kb.rows[0][0].text == "1"
     assert kb.rows[0][num_buttons - 1].text == str(num_buttons)
+
 
 
 @pytest.yield_fixture(scope="session", autouse=True)
@@ -313,8 +542,9 @@ async def controller(client):
     c = BotController(
         client=client,
         peer=f"@{settings.BOT_UNDER_TEST}",
-        max_wait=10.0,
-        wait_consecutive=0.8,
+        max_wait=20.0,
+        # wait_consecutive=0.8,
+        wait_consecutive=10,
     )
     await c.initialize(start_client=False)
     yield c
